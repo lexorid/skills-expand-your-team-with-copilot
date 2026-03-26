@@ -472,6 +472,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Creates sharing links for social media platforms so users can share
+  // activities with friends. Each link includes the activity name, description,
+  // and a direct URL that pre-fills the search to show that activity.
+  function getShareLinks(name, description) {
+    const activityUrl =
+      window.location.origin +
+      window.location.pathname +
+      "?search=" +
+      encodeURIComponent(name);
+    const shareText = `Check out "${name}" at Mergington High School! ${description}`;
+    return {
+      whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + activityUrl)}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(activityUrl)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(activityUrl)}&quote=${encodeURIComponent(shareText)}`,
+      copyUrl: activityUrl,
+    };
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -518,6 +536,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     `;
+
+    // Build share links for this activity
+    const shareLinks = getShareLinks(name, details.description);
 
     activityCard.innerHTML = `
       ${tagHtml}
@@ -569,6 +590,13 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <a href="${shareLinks.whatsapp}" target="_blank" rel="noopener noreferrer" class="share-button share-whatsapp" title="Share on WhatsApp">💬</a>
+        <a href="${shareLinks.twitter}" target="_blank" rel="noopener noreferrer" class="share-button share-twitter" title="Share on X (Twitter)">🐦</a>
+        <a href="${shareLinks.facebook}" target="_blank" rel="noopener noreferrer" class="share-button share-facebook" title="Share on Facebook">📘</a>
+        <button class="share-button share-copy" data-activity="${name}" title="Copy link">🔗</button>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +614,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handler for copy link button
+    const copyButton = activityCard.querySelector(".share-copy");
+    copyButton.addEventListener("click", () => {
+      navigator.clipboard.writeText(shareLinks.copyUrl).then(() => {
+        const original = copyButton.textContent;
+        copyButton.textContent = "✅";
+        copyButton.title = "Link copied!";
+        setTimeout(() => {
+          copyButton.textContent = original;
+          copyButton.title = "Copy link";
+        }, 1500);
+      }).catch(() => {
+        copyButton.title = "Copy failed – try again";
+      });
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -864,5 +908,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   checkAuthentication();
   initializeFilters();
+
+  // If a ?search= query parameter is present (e.g. from a shared link),
+  // pre-fill the search box so the linked activity is shown immediately.
+  const urlSearchParam = new URLSearchParams(window.location.search).get("search");
+  if (urlSearchParam) {
+    searchInput.value = urlSearchParam;
+    searchQuery = urlSearchParam;
+  }
+
   fetchActivities();
 });

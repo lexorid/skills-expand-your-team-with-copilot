@@ -664,3 +664,41 @@ footer {
 #logout-button:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
+
+/* Share buttons */
+.share-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-light);
+}
+
+.share-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-right: 2px;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: background-color 0.2s, transform 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.share-button:hover {
+  background-color: var(--border);
+  transform: scale(1.1);
+}
